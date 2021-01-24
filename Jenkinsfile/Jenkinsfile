@@ -1,0 +1,38 @@
+pipeline {
+    agent {
+        kubernetes {
+            yaml '''
+               apiVersion: v1
+               kind: Pod
+               spec:
+                 containers:
+                 - name: shell
+                   image: jenkins/jnlp-agent-maven:jdk11
+                   command:
+                   - sleep
+                   args:
+                   - infinity
+               '''
+            defaultContainer 'shell'
+        }
+    }
+   stages {
+      stage('Checkout') {
+         steps {
+            script {
+               git url: 'https://github.com/khergner/kubernetes-java-hellokubernetes.git'
+            }
+         }
+      }
+      stage('Build') {
+         steps {
+            sh 'mvn clean install'
+         }
+      }
+	  stage('Compile') {
+         steps {
+            sh ' java -jar target/hello-kubernetes-1.0.0.jar'
+         }
+      }
+	}
+}
